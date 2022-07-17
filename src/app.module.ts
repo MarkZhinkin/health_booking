@@ -7,6 +7,7 @@ import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { DoctorsModule } from "./doctors/doctors.module";
 import { CreateDoctorCommand } from "./commands/create-doctor.command";
+import { AppointmentModule } from "./appointments/appointment.module";
 
 
 @Module({
@@ -19,7 +20,8 @@ import { CreateDoctorCommand } from "./commands/create-doctor.command";
         ScheduleModule.forRoot(),
         AuthModule,
         UsersModule,
-        DoctorsModule
+        DoctorsModule,
+        AppointmentModule,
     ],
     controllers: [],
     providers: [CreateDoctorCommand],

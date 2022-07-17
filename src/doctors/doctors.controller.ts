@@ -9,6 +9,7 @@ import {
     UploadedFile,
     UsePipes,
     UseInterceptors,
+    Param
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { DoctorsService } from "./doctors.service";
@@ -26,6 +27,14 @@ import { UsersTypeEnum } from "../commons/enums";
 @Controller("doctors")
 export class DoctorsController {
     constructor(private doctorsService: DoctorsService) {}
+
+    @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.user]))
+    @ApiBearerAuth("JWT")
+    @Get(":page?")
+    @ApiOkResponse({ status: 200, description: "Show all doctors." })
+    async showDoctors(@Param("page") page: number) {
+        return await this.doctorsService.getDoctors(page);
+    }
 
     @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.doctor]))
     @ApiBearerAuth("JWT")

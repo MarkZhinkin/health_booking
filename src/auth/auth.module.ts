@@ -3,6 +3,7 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtModule } from "@nestjs/jwt";
 import { UsersModule } from "../users/users.module";
+import { DoctorsModule } from "../doctors/doctors.module";
 
 @Module({
     controllers: [AuthController],
@@ -14,7 +15,8 @@ import { UsersModule } from "../users/users.module";
                 expiresIn: "24h",
             },
         }),
-        forwardRef(() => UsersModule)
+        forwardRef(() => UsersModule),
+        forwardRef(() => DoctorsModule)
     ],
     exports: [AuthService, JwtModule],
 })

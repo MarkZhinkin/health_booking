@@ -11,62 +11,60 @@ import {
     UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { UsersService } from "./users.service";
+import { DoctorsService } from "./doctors.service";
 import { ApiConsumes, ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard, RightsGuard } from "../auth";
-import { ShowUserInfoResponse } from "./responses";
 import { Types } from "mongoose";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { ImageValidationPipe } from "../commons/pipes/images-validation.pipe";
-import { UpdateUserPhotoDto } from "./dto/update-user-photo.dto";
+import { UpdateDoctorDto, UpdateDoctorPhotoDto } from "./dto";
 import { TypeValidationPipe } from "../commons/pipes/type-validation.pipe";
 import * as path from "path";
 import { createWriteStream } from "fs";
 import { UsersTypeEnum } from "../commons/enums";
 
-@ApiTags("Users")
-@Controller("users")
-export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+@ApiTags("Doctors")
+@Controller("doctors")
+export class DoctorsController {
+    constructor(private doctorsService: DoctorsService) {}
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.doctor]))
     @ApiBearerAuth("JWT")
     @UsePipes(TypeValidationPipe)
-    @Get("/user")
-    @ApiOkResponse({ status: 200, description: "Get user info.", type: ShowUserInfoResponse })
-    async getUserInfo(@Request() request: { userId: Types.ObjectId }): Promise<ShowUserInfoResponse> {
-        return await this.usersService.getUserById(request.userId);
+    @Get("/doctor")
+    @ApiOkResponse({ status: 200, description: "Get doctor info." })
+    async getDoctorInfo(@Request() request: { userId: Types.ObjectId }) {
+        return await this.doctorsService.getDoctorById(request.userId);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.doctor]))
     @ApiBearerAuth("JWT")
     @UsePipes(TypeValidationPipe)
-    @Post("/user")
-    @ApiOkResponse({ status: 302, description: "Update user info." })
-    async updateUserInfo(
+    @Post("/doctor")
+    @ApiOkResponse({ status: 302, description: "Update dotor info." })
+    async updateDoctorInfo(
         @Request() request: { userId: Types.ObjectId },
-        @Body() dto: UpdateUserDto,
+        @Body() dto: UpdateDoctorDto,
         @Response() response
     ) {
-        await this.usersService.updateUserInfoById(request.userId, dto);
-        return response.redirect("/users/user");
+        await this.doctorsService.updateDoctorInfoById(request.userId, dto);
+        return response.redirect("/doctors/doctor");
     }
 
-    @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.user]))
+    @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.doctor]))
     @ApiBearerAuth("JWT")
-    @Post("/user/updatePhoto")
+    @Post("/doctor/updatePhoto")
     @UsePipes(ImageValidationPipe)
     @ApiConsumes("multipart/form-data")
     @UseInterceptors(FileInterceptor("file"))
-    @ApiBody({ type: UpdateUserPhotoDto })
-    @ApiOkResponse({ status: 302, description: "Update user photo." })
+    @ApiBody({ type: UpdateDoctorPhotoDto })
+    @ApiOkResponse({ status: 302, description: "Update doctor photo." })
     async uploadedFile(@Request() request: { userId: Types.ObjectId }, @UploadedFile() file, @Response() response) {
         const filename = `${request.userId}.${file.originalname.split(".").slice(-1).pop()}`;
         const ws = createWriteStream(path.join("storage", filename));
         ws.write(file.buffer);
 
-        await this.usersService.updateUserPhotoById(request.userId, filename);
+        await this.doctorsService.updateDoctorPhotoById(request.userId, filename);
 
-        return response.redirect("/users/user");
+        return response.redirect("/doctors/doctor");
     }
 }

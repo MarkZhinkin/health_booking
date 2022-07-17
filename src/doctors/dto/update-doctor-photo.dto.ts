@@ -6,7 +6,7 @@ export const photoDescription =
     "Photo must be in the format .jpg, .jpeg or .png. " +
     "Photo size no more then 3 Mb. ";
 
-export class UpdateUserPhotoDto {
-    @ApiProperty({ type: "string", format: "binary", description: photoDescription  })
+export class UpdateDoctorPhotoDto {
+    @ApiProperty({ type: "string", format: "binary", description: photoDescription })
     file: Express.Multer.File;
 }

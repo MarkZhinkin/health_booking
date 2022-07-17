@@ -1,12 +1,12 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 import { isEmail, isURL, isMobilePhone } from "validator";
-import { UsersTypeEnum, UsersStatusEnum } from "../../commons/enums";
+import { UsersTypeEnum, UsersStatusEnum, DoctorSpecializationEnum } from "../../commons/enums";
 
-export type UserDocument = User & Document;
+export type DoctorDocument = Doctor & Document;
 
 @Schema()
-export class User {
+export class Doctor {
     _id: Types.ObjectId;
  
     @Prop({ type: String, unique: true, index: true, required: true, validate: [isEmail, "Invalid email."] })
@@ -27,11 +27,14 @@ export class User {
     @Prop({ type: String, required: true, enum: Object.values(UsersStatusEnum), default: UsersStatusEnum.notСonfirmed })
     status: string;
 
-    @Prop({ type: String, required: true, enum: Object.values(UsersTypeEnum), default: UsersTypeEnum.user })
+    @Prop({ type: String, required: true, enum: Object.values(UsersTypeEnum), default: UsersTypeEnum.doctor })
     type: string;
+
+    @Prop({ type: String, required: true, enum: Object.values(DoctorSpecializationEnum), default: DoctorSpecializationEnum.therapist })
+    specialization: string;
 
     @Prop({ type: [Types.ObjectId], ref: "Appointments" })
     appointments: [Types.ObjectId];
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const DoctorSchema = SchemaFactory.createForClass(Doctor);

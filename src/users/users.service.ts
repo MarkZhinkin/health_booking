@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { User, UserDocument } from "../database/models/users";
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { UsersStatusEnum } from "../commons/enums";
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,7 @@ export class UsersService {
     }
     
     async getUserByEmail(email: string): Promise<User> {
-        return await this.userModel.findOne({ where: { email }, include: { all: true } });
+        return await this.userModel.findOne({ email: email, status: { $ne: UsersStatusEnum.blocked }, include: { all: true } });
     }
 
     async getUserById(id: Types.ObjectId, isShowId: 0 | 1 = 0): Promise<User> {

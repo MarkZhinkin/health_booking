@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { User, UserDocument } from "../database/models/users";
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -23,16 +23,16 @@ export class UsersService {
         });
     }
 
-    async updateUserInfoById(id: Types.ObjectId, body: { name?: string | undefined, phone?: string | undefined }) {
+    async updateUserInfoById(id: Types.ObjectId, dto: { name?: string | undefined, phone?: string | undefined }) {
         let user = await this.userModel.findOneAndUpdate(
             {id: id}, 
-            {name: body.name, phone: body.phone}
+            {name: dto.name, phone: dto.phone}
         )
-        if (body.name) {
-            user.name = body.name;
+        if (dto.name) {
+            user.name = dto.name;
         }
-        if (body.phone) {
-            user.phone = body.phone;
+        if (dto.phone) {
+            user.phone = dto.phone;
         }
         
         if (user.phone && user.name && user.status === "notСonfirmed") {
@@ -43,7 +43,7 @@ export class UsersService {
         }
     }
 
-    async updateUserPhotoById(id: Types.ObjectId, photo): Promise<User> {
+    async updateUserPhotoById(id: Types.ObjectId, photo: string): Promise<User> {
         return await this.userModel.findOneAndUpdate({id: id}, {photoAvatar: photo});
     }
 }

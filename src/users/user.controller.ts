@@ -8,12 +8,12 @@ import {
     Response,
     UploadedFile,
     UsePipes,
-    UseInterceptors
+    UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UsersService } from "./users.service";
-import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { ApiConsumes, ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import { JwtAuthGuard, RightsGuard } from "../auth";
 import { ShowUserInfoResponse } from "./responses";
 import { Types } from "mongoose";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -22,6 +22,7 @@ import { UpdateUserPhotoDto } from "./dto/update-user-photo.dto";
 import { TypeValidationPipe } from "../commons/pipes/type-validation.pipe";
 import * as path from "path";
 import { createWriteStream } from "fs";
+import { UsersTypeEnum } from "../commons/enums";
 
 @ApiTags("Users")
 @Controller("users")
@@ -51,39 +52,21 @@ export class UsersController {
         return response.redirect("/users/user");
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.user]))
     @ApiBearerAuth("JWT")
     @Post("/user/updatePhoto")
     @UsePipes(ImageValidationPipe)
+    @ApiConsumes("multipart/form-data")
     @UseInterceptors(FileInterceptor("file"))
-    @ApiBody({
-        description:
-            "A new avatar for the user. " +
-            "Photo must be in the format .jpg, .jpeg or .png. " +
-            "Photo size no more then 3 Mb. ",
-        type: UpdateUserPhotoDto,
-    })
+    @ApiBody({ type: UpdateUserPhotoDto })
     @ApiOkResponse({ status: 302, description: "Update user photo." })
-    async uploadedFile(
-        @Request() request: { userId: Types.ObjectId }, 
-        @UploadedFile() file, 
-        @Response() response)
-    {
-        const ws = await createWriteStream(path.join("storage", file.originalname));
-        await ws.write(file.buffer);
+    async uploadedFile(@Request() request: { userId: Types.ObjectId }, @UploadedFile() file, @Response() response) {
+        const filename = `${request.userId}.${file.originalname.split(".").slice(-1).pop()}`;
+        const ws = createWriteStream(path.join("storage", filename));
+        ws.write(file.buffer);
 
-        await this.usersService.updateUserPhotoById(request.userId, file.originalname);
+        await this.usersService.updateUserPhotoById(request.userId, filename);
 
         return response.redirect("/users/user");
     }
-
-    // @UseGuards(JwtAuthGuard)
-    // @ApiBearerAuth("JWT")
-    // @UsePipes(TypeValidationPipe)
-    // @Get("/user/appointments")
-    // @ApiOkResponse({ status: 200, description: "Get user appointments.", type: ShowUserInfoResponse })
-    // async getUserAppointments(@Request() request: { userId: Types.ObjectId }): Promise<ShowUserInfoResponse> {
-    //     // pagination by 10 records
-    //     return await this.usersService.getUserById(request.userId, 0);
-    // }
 }

@@ -3,8 +3,11 @@ import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MongooseModule } from "@nestjs/mongoose";
 import createConnectionString from "./commons/utils/create-connection-string";
-import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
+import { DoctorsModule } from "./doctors/doctors.module";
+import { CreateDoctorCommand } from "./commands/create-doctor.command";
+
 
 @Module({
     imports: [
@@ -14,10 +17,11 @@ import { AuthModule } from "./auth/auth.module";
         }),
         MongooseModule.forRoot(createConnectionString()),
         ScheduleModule.forRoot(),
-        UsersModule,
         AuthModule,
+        UsersModule,
+        DoctorsModule
     ],
     controllers: [],
-    providers: [],
+    providers: [CreateDoctorCommand],
 })
 export class AppModule {}

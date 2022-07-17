@@ -33,7 +33,10 @@ export class Doctor {
     @Prop({ type: String, required: true, enum: Object.values(DoctorSpecializationEnum), default: DoctorSpecializationEnum.therapist })
     specialization: string;
 
-    @Prop({ type: [Types.ObjectId], ref: "Appointments" })
+    @Prop({ type: Boolean, required: true, default: true })
+    isFree: boolean;
+
+    @Prop({ type: [Types.ObjectId], ref: "Appointment" })
     appointments: [Types.ObjectId];
 }
 

@@ -20,7 +20,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "nest-commander": "node dist/commander.js",
-    "create-doctor": "npm run build && npm run nest-commander create-doctor"
+    "create-doctor": "npm run nest-commander create-doctor"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",

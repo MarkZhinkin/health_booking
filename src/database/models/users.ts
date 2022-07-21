@@ -29,9 +29,6 @@ export class User {
 
     @Prop({ type: String, required: true, enum: Object.values(UsersTypeEnum), default: UsersTypeEnum.user })
     type: string;
-
-    @Prop({ type: [Types.ObjectId], ref: "Appointment" })
-    appointments: [Types.ObjectId];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -5,7 +5,6 @@ import {
     Body,
     UseGuards,
     Request,
-    Response,
     UploadedFile,
     UsePipes,
     UseInterceptors,
@@ -20,9 +19,9 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { ImageValidationPipe } from "../commons/pipes/images-validation.pipe";
 import { UpdateUserPhotoDto } from "./dto/update-user-photo.dto";
 import { TypeValidationPipe } from "../commons/pipes/type-validation.pipe";
-import * as path from "path";
-import { createWriteStream } from "fs";
 import { UsersTypeEnum } from "../commons/enums";
+import { diskStorage } from "multer";
+import changeUploadFileName from "../commons/utils/change-upload-file-name";
 
 @ApiTags("Users")
 @Controller("users")
@@ -42,14 +41,12 @@ export class UsersController {
     @ApiBearerAuth("JWT")
     @UsePipes(TypeValidationPipe)
     @Post("/user")
-    @ApiOkResponse({ status: 302, description: "Update user info." })
+    @ApiOkResponse({ status: 200, description: "Update user info.", type: ShowUserInfoResponse })
     async updateUserInfo(
         @Request() request: { userId: Types.ObjectId },
-        @Body() dto: UpdateUserDto,
-        @Response() response
-    ) {
-        await this.usersService.updateUserInfoById(request.userId, dto);
-        return response.redirect("/users/user");
+        @Body() dto: UpdateUserDto
+    ): Promise<ShowUserInfoResponse> {
+        return await this.usersService.updateUserInfoById(request.userId, dto);
     }
 
     @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.user]))
@@ -57,16 +54,17 @@ export class UsersController {
     @Post("/user/updatePhoto")
     @UsePipes(ImageValidationPipe)
     @ApiConsumes("multipart/form-data")
-    @UseInterceptors(FileInterceptor("file"))
+    @UseInterceptors(
+        FileInterceptor("file", {
+            storage: diskStorage({
+                destination: "storage",
+                filename: changeUploadFileName,
+            }),
+        })
+    )
     @ApiBody({ type: UpdateUserPhotoDto })
-    @ApiOkResponse({ status: 302, description: "Update user photo." })
-    async uploadedFile(@Request() request: { userId: Types.ObjectId }, @UploadedFile() file, @Response() response) {
-        const filename = `${request.userId}.${file.originalname.split(".").slice(-1).pop()}`;
-        const ws = createWriteStream(path.join("storage", filename));
-        ws.write(file.buffer);
-
-        await this.usersService.updateUserPhotoById(request.userId, filename);
-
-        return response.redirect("/users/user");
+    @ApiOkResponse({ status: 200, description: "Update user photo." })
+    async uploadedFile(@Request() request: { userId: Types.ObjectId }, @UploadedFile() file) {
+        await this.usersService.updateUserPhotoById(request.userId, file.filename);
     }
 }

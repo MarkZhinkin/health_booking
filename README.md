@@ -12,6 +12,17 @@ Registration opens every day at midnight.
 - free doctor appointment
 - doctors status update at midnight
 
+- writed test case for authorization and users services
+
+## Doctors creation 
+For creation doctor application must be built and can be running. 
+Doctors is creation only on project cli. So go to the root and input 
+`npm run create-doctor $doctor_email $password $doctor_specialization`.
+After it doctor can login on service. 
+
+## Testing 
+For test application input `npm run test:e2e`. 
+
 
 ## Instalation 
  - clone the repository

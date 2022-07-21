@@ -14,7 +14,7 @@ export class AuthController {
     @Post("/login")
     @ApiOperation({summary: "User login."})
     @ApiOkResponse({ status: 200 , description: "User has been successfully login.", type: UserLoginResponse })
-    async login(@Body() userDto: LoginUserDto) {
+    async login(@Body() userDto: LoginUserDto): Promise<UserLoginResponse> {
         return await this.authService.login(userDto);
     }
 
@@ -22,7 +22,7 @@ export class AuthController {
     @ApiOperation({summary: "User registration."})
     @ApiOkResponse({ status: 201, description: "User has been successfully created.", type: UserLoginResponse })
     @ApiBadRequestResponse({ type: BadRequestResponse })
-    async registration(@Body() userDto: CreateUserDto) {
+    async registration(@Body() userDto: CreateUserDto): Promise<UserLoginResponse>{
         return await this.authService.registration(userDto);
     }
 }

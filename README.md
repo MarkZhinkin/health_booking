@@ -11,6 +11,7 @@ Registration opens every day at midnight.
 - pagination of free doctors
 - free doctor appointment
 - doctors status update at midnight
+
 - writed test case for authorization and users services
 
 ## Doctors creation 

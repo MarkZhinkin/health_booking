@@ -27,7 +27,7 @@ import { ShowDoctorInfoResponse } from "./responses";
 @Controller("doctors")
 export class DoctorsController {
     constructor(private doctorsService: DoctorsService) {}
-
+    
     @UseGuards(JwtAuthGuard, new RightsGuard([UsersTypeEnum.doctor, UsersTypeEnum.user]))
     @ApiBearerAuth("JWT")
     @Get(":page?")

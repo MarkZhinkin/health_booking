@@ -41,9 +41,6 @@ export class AppointmentsService {
             doctor.appointments.push(appointment._id);
             await doctor.save();
             
-            user.appointments.push(appointment._id);
-            await user.save();
-            
             return true;
         }
     }

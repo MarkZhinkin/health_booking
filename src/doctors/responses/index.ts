@@ -1,0 +1,1 @@
+export { ShowDoctorInfoResponse } from "./show-doctor-info.response";

@@ -3,11 +3,12 @@ import { User, UserDocument } from "../database/models/users";
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UsersStatusEnum } from "../commons/enums";
+import { ShowUserInfoResponse } from "./responses";
 
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectModel(User.name) private userModel: Model<UserDocument>
+        @InjectModel(User.name) private userModel: Model<User>
     ) {}
 
     async createUser(dto: {email: string, regToken: string}): Promise<User> {
@@ -24,7 +25,10 @@ export class UsersService {
         });
     }
 
-    async updateUserInfoById(id: Types.ObjectId, dto: { name?: string | undefined, phone?: string | undefined }) {
+    async updateUserInfoById(
+            id: Types.ObjectId, 
+            dto: { name?: string | undefined, phone?: string | undefined }
+        ): Promise<ShowUserInfoResponse> {
         let user = await this.userModel.findOneAndUpdate(
             {id: id}, 
             {name: dto.name, phone: dto.phone}
@@ -37,14 +41,19 @@ export class UsersService {
         }
         
         if (user.phone && user.name && user.status === "notСonfirmed") {
-            user = await this.userModel.findOneAndUpdate(
+            await this.userModel.findOneAndUpdate(
                 {id: id}, 
                 {status: "active"}
             )
+            user.status = "active";
         }
+
+        return {
+           email: user.email, name: user.name, phone: user.phone, photoAvatar: user.photoAvatar, status: user.status 
+        };
     }
 
-    async updateUserPhotoById(id: Types.ObjectId, photo: string): Promise<User> {
-        return await this.userModel.findOneAndUpdate({id: id}, {photoAvatar: photo});
+    async updateUserPhotoById(id: Types.ObjectId, photo: string) {
+        await this.userModel.findOneAndUpdate({id: id}, {photoAvatar: photo});
     }
 }

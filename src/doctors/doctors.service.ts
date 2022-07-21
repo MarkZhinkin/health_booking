@@ -5,7 +5,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import * as bcrypt from "bcrypt";
 import { UsersStatusEnum } from "../commons/enums";
 import { Cron } from "@nestjs/schedule";
-
+import { ShowDoctorInfoResponse } from "./responses";
 
 @Injectable()
 export class DoctorsService {
@@ -55,10 +55,15 @@ export class DoctorsService {
             phone: 1,
             photoAvatar: 1,
             status: 1,
+            specialization: 1,
+            isFree: 1,
         });
     }
 
-    async updateDoctorInfoById(id: Types.ObjectId, dto: { name?: string | undefined; phone?: string | undefined }) {
+    async updateDoctorInfoById(
+            id: Types.ObjectId,
+            dto: { name?: string | undefined; phone?: string | undefined }
+        ): Promise<ShowDoctorInfoResponse> {
         let doctor = await this.doctorModel.findOneAndUpdate({ id: id }, { name: dto.name, phone: dto.phone });
         if (dto.name) {
             doctor.name = dto.name;
@@ -68,7 +73,17 @@ export class DoctorsService {
         }
 
         if (doctor.phone && doctor.name && doctor.status === "notСonfirmed") {
-            doctor = await this.doctorModel.findOneAndUpdate({ id: id }, { status: "active" });
+            await this.doctorModel.findOneAndUpdate({ id: id }, { status: "active" });
+            doctor.status = "active";
+        }
+        return {
+            email: doctor.email,
+            name: doctor.name,
+            phone: doctor.phone,
+            photoAvatar: doctor.photoAvatar,
+            status: doctor.status,
+            specialization: doctor.specialization,
+            isFree: doctor.isFree
         }
     }
 
